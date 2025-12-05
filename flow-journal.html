@@ -1,1 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#F5F3F0">
+    <title>心流存摺</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --cream: #F5F3F0;
+            --sand: #E8E4DF;
+            --clay: #D4CEC7;
+            --stone: #8B8680;
+            --charcoal: #3A3632;
+            --ink: #1A1816;
+            --accent-sage: #9CAF88;
+            --accent-warm: #C9A882;
+            --shadow: rgba(26, 24, 22, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--sand) 100%);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--cream);
+            box-shadow: 0 0 40px var(--shadow);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--charcoal), var(--stone));
+            color: var(--cream);
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(245,243,240,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+        
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            letter-spacing: 0.2em;
+            position: relative;
+        }
+        
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: var(--cream);
+        }
+        
+        .nav-btn {
+            background: white;
+            border: 1px solid var(--clay);
+            padding: 1.5rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--shadow);
+            border-color: var(--accent-sage);
+        }
+        
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+        
+        .nav-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .nav-label {
+            font-size: 0.85rem;
+            color: var(--charcoal);
+            font-weight: 500;
+        }
+        
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-container {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--charcoal);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--clay);
+            border-radius: 8px;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-sage);
+            box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .tag {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--clay);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .tag.selected {
+            background: var(--accent-sage);
+            color: white;
+            border-color: var(--accent-sage);
+        }
+        
+        .context-group {
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background: var(--sand);
+            border-radius: 8px;
+        }
+        
+        .context-item {
+            margin-bottom: 0.75rem;
+        }
+        
+        .context-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .context-label {
+            font-size: 0.85rem;
+            color: var(--stone);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        
+        .context-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--clay);
+            border-radius: 6px;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.9rem;
+            background: white;
+        }
+        
+        .slider-container {
+            padding: 1rem 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--sand);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-sage);
+            cursor: pointer;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-sage);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .slider-value {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--accent-sage);
+            margin-top: 0.5rem;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--charcoal);
+            color: var(--cream);
+        }
+        
+        .btn-primary:hover {
+            background: var(--ink);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        
+        .btn-secondary {
+            background: var(--sand);
+            color: var(--charcoal);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--clay);
+        }
+        
+        .image-upload {
+            margin-top: 0.5rem;
+        }
+        
+        .image-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .image-preview.active {
+            display: block;
+        }
+        
+        .records-container {
+            padding: 1.5rem;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--clay);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tab.active {
+            background: var(--charcoal);
+            color: var(--cream);
+            border-color: var(--charcoal);
+        }
+        
+        .record-card {
+            background: white;
+            border: 1px solid var(--clay);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .record-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .record-time {
+            font-size: 0.85rem;
+            color: var(--stone);
+        }
+        
+        .record-type {
+            font-size: 1.5rem;
+        }
+        
+        .record-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+        
+        .record-meta {
+            font-size: 0.85rem;
+            color: var(--stone);
+        }
+        
+        .record-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--sand);
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .record-details.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .record-detail-item {
+            margin-bottom: 0.75rem;
+        }
+        
+        .record-detail-label {
+            font-size: 0.8rem;
+            color: var(--stone);
+            margin-bottom: 0.25rem;
+        }
+        
+        .record-detail-content {
+            font-size: 0.9rem;
+            color: var(--charcoal);
+        }
+        
+        .record-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+        
+        .action-item {
+            background: white;
+            border: 1px solid var(--clay);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-item:hover {
+            border-color: var(--accent-sage);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .action-content {
+            font-size: 1rem;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+        
+        .action-stats {
+            font-size: 0.85rem;
+            color: var(--stone);
+        }
+        
+        .action-usage {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--sand);
+            font-size: 0.8rem;
+            color: var(--stone);
+        }
+        
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            border: 2px solid var(--accent-sage);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 80%;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .message.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        
+        .message-text {
+            font-size: 1.1rem;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+        }
+        
+        .message-btn {
+            background: var(--accent-sage);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--stone);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 0.9rem;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--clay);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 8px var(--shadow);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>心流存摺</h1>
+            <div class="header-subtitle">記錄成長 · 感知情緒</div>
+        </div>
 
+        <div id="homeScreen" class="screen active">
+            <div class="nav">
+                <button class="nav-btn" onclick="showScreen('achievementScreen')">
+                    <span class="nav-icon">✨</span>
+                    <span class="nav-label">記錄完成</span>
+                </button>
+                <button class="nav-btn" onclick="showScreen('emotionScreen')">
+                    <span class="nav-icon">💭</span>
+                    <span class="nav-label">記錄情緒</span>
+                </button>
+                <button class="nav-btn" onclick="showScreen('recordsScreen')">
+                    <span class="nav-icon">📖</span>
+                    <span class="nav-label">查看記錄</span>
+                </button>
+            </div>
+            
+            <div style="padding: 1rem 1.5rem; background: var(--sand); border-radius: 12px; margin: 0 1.5rem; font-size: 0.85rem; color: var(--stone);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📊 已記錄 <strong id="recordCount" style="color: var(--charcoal);">0</strong> 筆</span>
+                    <span id="lastSaved" style="font-size: 0.75rem;">載入中...</span>
+                </div>
+                <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--stone);">
+                    💡 提示：定期匯出備份,避免資料遺失
+                </div>
+            </div>
+        </div>
+      <div id="achievementScreen" class="screen">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <div class="form-container">
+                <h2 style="margin-bottom: 1.5rem; font-family: 'Cormorant Garamond', serif; font-weight: 400;">記錄完成事項</h2>
+                
+                <form id="achievementForm">
+                    <div class="form-group">
+                        <label class="form-label">時間</label>
+                        <input type="datetime-local" id="achTime" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">標題</label>
+                        <input type="text" id="achTitle" class="form-input" placeholder="一句話描述你完成了什麼" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">分類</label>
+                        <div class="tags-container">
+                            <div class="tag" data-value="旗袍設計">旗袍設計</div>
+                            <div class="tag" data-value="BNI活動">BNI活動</div>
+                            <div class="tag" data-value="創作">創作</div>
+                            <div class="tag" data-value="其他">其他</div>
+                        </div>
+                        <input type="hidden" id="achCategory" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">上傳照片 (可選)</label>
+                        <input type="file" id="achImage" class="form-input image-upload" accept="image/*">
+                        <img id="achImagePreview" class="image-preview" alt="預覽">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">展現的能力</label>
+                        <div class="tags-container">
+                            <div class="tag" data-value="創意">創意</div>
+                            <div class="tag" data-value="執行力">執行力</div>
+                            <div class="tag" data-value="溝通">溝通</div>
+                            <div class="tag" data-value="領導">領導</div>
+                            <div class="tag" data-value="問題解決">問題解決</div>
+                            <div class="tag" data-value="美感">美感</div>
+                        </div>
+                        <input type="hidden" id="achSkills">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">儲存記錄</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="emotionScreen" class="screen">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <div class="form-container">
+                <h2 style="margin-bottom: 1.5rem; font-family: 'Cormorant Garamond', serif; font-weight: 400;">記錄情緒時刻</h2>
+                
+                <form id="emotionForm">
+                    <div class="form-group">
+                        <label class="form-label">時間</label>
+                        <input type="datetime-local" id="emoTime" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">情緒類型</label>
+                        <div class="tags-container">
+                            <div class="tag" data-value="快樂感恩" data-icon="😊" data-category="happy">😊 快樂感恩</div>
+                            <div class="tag" data-value="焦慮失落" data-icon="😰" data-category="anxiety">😰 焦慮失落</div>
+                            <div class="tag" data-value="期待平靜" data-icon="✨" data-category="mixed">✨期待平靜</div>
+                            <div class="tag" data-value="其他" data-icon="💭" data-category="mixed">💭 其他</div>
+                        </div>
+                        <input type="hidden" id="emoType" required>
+                        <input type="hidden" id="emoIcon">
+                        <input type="hidden" id="emoCategory">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">發生什麼事？(選填)</label>
+                        <div class="context-group">
+                            <div class="context-item">
+                                <span class="context-label">人</span>
+                                <input type="text" class="context-input" id="emoPerson" placeholder="與誰相關">
+                            </div>
+                            <div class="context-item">
+                                <span class="context-label">地</span>
+                                <input type="text" class="context-input" id="emoPlace" placeholder="在哪裡">
+                            </div>
+                            <div class="context-item">
+                                <span class="context-label">事</span>
+                                <textarea class="context-input" id="emoEvent" placeholder="發生什麼事" rows="3"></textarea>
+                            </div>
+                            <div class="context-item">
+                                <span class="context-label">天氣</span>
+                                <select class="context-input" id="emoWeather">
+                                    <option value="">選擇天氣</option>
+                                    <option value="晴">☀️ 晴</option>
+                                    <option value="陰">☁️ 陰</option>
+                                    <option value="雨">🌧️ 雨</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">情緒強度</label>
+                        <div class="slider-container">
+                            <input type="range" min="1" max="10" value="5" class="slider" id="emoIntensity">
+                            <div class="slider-value" id="emoIntensityValue">5</div>
+                        </div>
+                    </div>
+                    
+                    <div id="anxietyFields" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">在期待什麼回應？(選填)</label>
+                            <input type="text" id="emoExpectation" class="form-input" placeholder="例如：期待作品獲得讚美">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">可以做這些事來轉移情緒</label>
+                            <div id="suggestedActions" class="tags-container"></div>
+                            <input type="text" id="customAction" class="form-input" placeholder="或輸入其他行動" style="margin-top: 0.5rem;">
+                            <input type="hidden" id="selectedAction">
+                        </div>
+                    </div>
+                    
+                    <div id="happyFields" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">這個快樂來源</label>
+                            <div class="tags-container">
+                                <div class="tag" data-value="人">人</div>
+                                <div class="tag" data-value="事">事</div>
+                                <div class="tag" data-value="物">物</div>
+                                <div class="tag" data-value="成就">成就</div>
+                            </div>
+                            <input type="hidden" id="happySource">
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--stone); margin-top: 0.5rem;">💡 多寫些細節，未來翻閱時會更有感受！</p>
+                    </div>
+                    
+                    <div id="mixedFields" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">快樂來源 (選填)</label>
+                            <div class="tags-container">
+                                <div class="tag" data-value="人">人</div>
+                                <div class="tag" data-value="事">事</div>
+                                <div class="tag" data-value="物">物</div>
+                                <div class="tag" data-value="成就">成就</div>
+                            </div>
+                            <input type="hidden" id="mixedHappySource">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">採取的行動 (選填)</label>
+                            <div id="mixedSuggestedActions" class="tags-container"></div>
+                            <input type="text" id="mixedCustomAction" class="form-input" placeholder="或輸入其他行動" style="margin-top: 0.5rem;">
+                            <input type="hidden" id="mixedSelectedAction">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">儲存記錄</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="recordsScreen" class="screen">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <div class="records-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400;">查看過往記錄</h2>
+                    <button class="btn-secondary" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--clay); background: white; cursor: pointer; font-size: 0.85rem;" onclick="showExportMenu()">📥 匯出</button>
+                </div>
+                
+                <div class="filter-tabs">
+                    <div class="filter-tab active" data-filter="timeline">時間軸</div>
+                    <div class="filter-tab" data-filter="achievements">完成事項</div>
+                    <div class="filter-tab" data-filter="happy">快樂感恩</div>
+                    <div class="filter-tab" data-filter="anxiety">焦慮記錄</div>
+                    <div class="filter-tab" data-filter="all-emotions">所有情緒</div>
+                    <div class="filter-tab" data-filter="actions">行動建議</div>
+                </div>
+                
+                <div id="recordsList"></div>
+            </div>
+        </div>
+
+        <div id="message" class="message">
+            <div class="message-text" id="messageText"></div>
+            <button class="message-btn" onclick="closeMessage()">確定</button>
+        </div>
+        
+        <div id="exportMenu" class="message">
+            <div class="message-text" style="margin-bottom: 1.5rem;">資料管理</div>
+            <button class="message-btn" style="margin-bottom: 0.5rem; width: 100%; background: var(--accent-sage);" onclick="exportToCSV()">📊 匯出 CSV</button>
+            <button class="message-btn" style="margin-bottom: 0.5rem; width: 100%; background: var(--accent-sage);" onclick="exportToJSON()">📄 匯出 JSON</button>
+            <button class="message-btn" style="margin-bottom: 0.5rem; width: 100%; background: var(--accent-warm);" onclick="triggerImport()">📥 匯入資料</button>
+            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importData(event)">
+            <button class="btn-secondary" style="margin-top: 1rem; width: 100%; padding: 0.75rem; border: none; border-radius: 8px; cursor: pointer;" onclick="closeExportMenu()">取消</button>
+        </div>
+        
+        <div id="editModal" class="message" style="max-width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div class="message-text" style="margin-bottom: 1.5rem; font-size: 1.2rem;">編輯記錄</div>
+            <form id="editForm" style="text-align: left;">
+                <input type="hidden" id="editRecordId">
+                
+                <div class="form-group">
+                    <label class="form-label">時間</label>
+                    <input type="datetime-local" id="editTime" class="form-input" required>
+                </div>
+                
+                <div class="form-group" id="editTitleGroup">
+                    <label class="form-label">標題</label>
+                    <input type="text" id="editTitle" class="form-input">
+                </div>
+                
+                <div class="form-group" id="editEmotionGroup">
+                    <label class="form-label">情緒強度</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="editIntensity">
+                        <div class="slider-value" id="editIntensityValue">5</div>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="editActionGroup">
+                    <label class="form-label">採取的行動</label>
+                    <div id="editSuggestedActions" class="tags-container"></div>
+                    <input type="text" id="editAction" class="form-input" placeholder="輸入行動" style="margin-top: 0.5rem;">
+                </div>
+                
+                <div class="form-group" id="editEventGroup">
+                    <label class="form-label">事件描述</label>
+                    <textarea id="editEvent" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">儲存</button>
+                    <button type="button" class="btn-secondary" style="flex: 1;" onclick="closeEditModal()">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+      
