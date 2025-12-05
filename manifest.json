@@ -2,7 +2,7 @@
   "name": "心流存摺",
   "short_name": "心流存摺",
   "description": "記錄成長與情緒的個人日誌",
-  "start_url": "/flow-journal.html",
+  "start_url": "./flow-journal.html",
   "display": "standalone",
   "background_color": "#F5F3F0",
   "theme_color": "#F5F3F0",
