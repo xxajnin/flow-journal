@@ -316,23 +316,6 @@
             background: var(--clay);
         }
         
-        .image-upload {
-            margin-top: 0.5rem;
-        }
-        
-        .image-preview {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            display: none;
-        }
-        
-        .image-preview.active {
-            display: block;
-        }
-        
         .records-container {
             padding: 1.5rem;
         }
@@ -442,12 +425,6 @@
         .record-detail-content {
             font-size: 0.9rem;
             color: var(--charcoal);
-        }
-        
-        .record-image {
-            width: 100%;
-            border-radius: 8px;
-            margin-top: 0.5rem;
         }
         
         .action-item {
@@ -624,12 +601,6 @@
                             <div class="tag" data-value="其他">其他</div>
                         </div>
                         <input type="hidden" id="achCategory" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">上傳照片 (可選)</label>
-                        <input type="file" id="achImage" class="form-input image-upload" accept="image/*">
-                        <img id="achImagePreview" class="image-preview" alt="預覽">
                     </div>
                     
                     <div class="form-group">
@@ -1074,19 +1045,6 @@
             });
         });
         
-        document.getElementById('achImage').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('achImagePreview');
-                    preview.src = e.target.result;
-                    preview.classList.add('active');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-        
         document.getElementById('emoIntensity').addEventListener('input', function() {
             document.getElementById('emoIntensityValue').textContent = this.value;
         });
@@ -1134,8 +1092,7 @@
                 time: document.getElementById('achTime').value,
                 title: document.getElementById('achTitle').value,
                 category: document.getElementById('achCategory').value,
-                skills: document.getElementById('achSkills').value.split(',').filter(s => s),
-                image: document.getElementById('achImagePreview').src || null
+                skills: document.getElementById('achSkills').value.split(',').filter(s => s)
             };
             
             records.unshift(record);
@@ -1143,7 +1100,6 @@
             
             showMessage('已記錄。恭喜你又進步了一小步！');
             this.reset();
-            document.getElementById('achImagePreview').classList.remove('active');
             document.querySelectorAll('.tag.selected').forEach(t => t.classList.remove('selected'));
             
             setTimeout(() => showScreen('homeScreen'), 2000);
@@ -1275,7 +1231,6 @@
                     <div class="record-title">${record.title}</div>
                     <div class="record-meta">${record.category} · ${record.skills.join(' · ')}</div>
                     <div class="record-details">
-                        ${record.image ? `<img src="${record.image}" class="record-image" alt="記錄圖片">` : ''}
                         <div class="record-detail-item">
                             <div class="record-detail-label">分類</div>
                             <div class="record-detail-content">${record.category}</div>
