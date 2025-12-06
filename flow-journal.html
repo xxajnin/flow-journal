@@ -599,7 +599,7 @@
                 </div>
             </div>
         </div>
-      <div id="achievementScreen" class="screen">
+        <div id="achievementScreen" class="screen">
             <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
             <div class="form-container">
                 <h2 style="margin-bottom: 1.5rem; font-family: 'Cormorant Garamond', serif; font-weight: 400;">記錄完成事項</h2>
@@ -666,7 +666,7 @@
                         <div class="tags-container">
                             <div class="tag" data-value="快樂感恩" data-icon="😊" data-category="happy">😊 快樂感恩</div>
                             <div class="tag" data-value="焦慮失落" data-icon="😰" data-category="anxiety">😰 焦慮失落</div>
-                            <div class="tag" data-value="期待平靜" data-icon="✨" data-category="mixed">✨期待平靜</div>
+                            <div class="tag" data-value="期待平靜" data-icon="✨" data-category="mixed">✨ 期待平靜</div>
                             <div class="tag" data-value="其他" data-icon="💭" data-category="mixed">💭 其他</div>
                         </div>
                         <input type="hidden" id="emoType" required>
@@ -675,7 +675,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">發生什麼事？(選填)</label>
+                        <label class="form-label">發生什麼事?(選填)</label>
                         <div class="context-group">
                             <div class="context-item">
                                 <span class="context-label">人</span>
@@ -712,7 +712,7 @@
                     
                     <div id="anxietyFields" style="display: none;">
                         <div class="form-group">
-                            <label class="form-label">在期待什麼回應？(選填)</label>
+                            <label class="form-label">在期待什麼回應?(選填)</label>
                             <input type="text" id="emoExpectation" class="form-input" placeholder="例如：期待作品獲得讚美">
                         </div>
                         
@@ -841,23 +841,16 @@
     </div>
 
     <script>
-      let records = [];
-        let commonActions = [];
+        let records = [];
+        let commonActions = ['看書', '冥想', '運動拉伸', '散步走路', '騎滑板車', '畫畫'];
         
         function loadData() {
             try {
                 const savedRecords = localStorage.getItem('flowJournalRecords');
-                const savedActions = localStorage.getItem('flowJournalActions');
                 
                 if (savedRecords) {
                     records = JSON.parse(savedRecords);
                     console.log('Loaded records:', records.length);
-                }
-                
-                if (savedActions) {
-                    commonActions = JSON.parse(savedActions);
-                } else {
-                    commonActions = ['去運動', '冥想', '畫畫', '看書', '散步', '拉筋按摩'];
                 }
                 
                 saveToIndexedDB();
@@ -872,7 +865,6 @@
             try {
                 const saveTime = new Date().toISOString();
                 localStorage.setItem('flowJournalRecords', JSON.stringify(records));
-                localStorage.setItem('flowJournalActions', JSON.stringify(commonActions));
                 localStorage.setItem('flowJournalLastSaved', saveTime);
                 saveToIndexedDB();
                 console.log('Data saved successfully at', saveTime);
@@ -914,7 +906,6 @@
                 const store = transaction.objectStore('records');
                 
                 store.put({ key: 'records', data: records });
-                store.put({ key: 'actions', data: commonActions });
                 store.put({ key: 'lastSaved', data: new Date().toISOString() });
                 
                 console.log('Saved to IndexedDB');
@@ -931,20 +922,12 @@
                 const store = transaction.objectStore('records');
                 
                 const recordsRequest = store.get('records');
-                const actionsRequest = store.get('actions');
                 
                 recordsRequest.onsuccess = () => {
                     if (recordsRequest.result) {
                         records = recordsRequest.result.data;
                         localStorage.setItem('flowJournalRecords', JSON.stringify(records));
                         console.log('Recovered from IndexedDB:', records.length, 'records');
-                    }
-                };
-                
-                actionsRequest.onsuccess = () => {
-                    if (actionsRequest.result) {
-                        commonActions = actionsRequest.result.data;
-                        localStorage.setItem('flowJournalActions', JSON.stringify(commonActions));
                     }
                 };
             } catch (error) {
@@ -1165,6 +1148,7 @@
             
             setTimeout(() => showScreen('homeScreen'), 2000);
         });
+        
         document.getElementById('emotionForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1192,10 +1176,6 @@
                 const selectedAction = document.getElementById('selectedAction').value;
                 const customAction = document.getElementById('customAction').value;
                 record.action = customAction || selectedAction;
-                
-                if (customAction && !commonActions.includes(customAction)) {
-                    commonActions.push(customAction);
-                }
             } 
             else if (category === 'happy') {
                 record.happySource = document.getElementById('happySource').value;
@@ -1205,10 +1185,6 @@
                 const selectedAction = document.getElementById('mixedSelectedAction').value;
                 const customAction = document.getElementById('mixedCustomAction').value;
                 record.action = customAction || selectedAction;
-                
-                if (customAction && !commonActions.includes(customAction)) {
-                    commonActions.push(customAction);
-                }
             }
             
             records.unshift(record);
@@ -1233,7 +1209,6 @@
             
             setTimeout(() => showScreen('homeScreen'), 2500);
         });
-        
         document.querySelectorAll('.filter-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -1571,10 +1546,6 @@
                 if (document.getElementById('editActionGroup').style.display !== 'none') {
                     const newAction = document.getElementById('editAction').value;
                     record.action = newAction;
-                    
-                    if (newAction && !commonActions.includes(newAction)) {
-                        commonActions.push(newAction);
-                    }
                 }
             }
             
