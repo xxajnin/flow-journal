@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>登入 - 心流存摺</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
+        :root {
+            --cream: #F5F3F0;
+            --sand: #E8E4DF;
+            --clay: #D4CEC7;
+            --stone: #8B8680;
+            --charcoal: #3A3632;
+            --ink: #1A1816;
+            --accent-sage: #9CAF88;
+            --shadow: rgba(26, 24, 22, 0.08);
+            --google-blue: #4285F4;
+        }
+        body { font-family: 'Noto Serif TC', serif; background: var(--cream); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .auth-container { max-width: 400px; width: 100%; background: white; border-radius: 24px; box-shadow: 0 8px 40px var(--shadow); padding: 2rem; text-align: center; }
+        .google-btn { width: 100%; padding: 1rem; background: var(--google-blue); color: white; border: none; border-radius: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h1>心流存摺</h1>
+        <button onclick="window.FlowJournal.auth.signInWithGoogle()">Google 登入</button>
+    </div>
+    <script src="js/supabase-config.js"></script><script src="js/auth.js"></script>
+    <script>
+        async function checkAuth() { 
+            await window.FlowJournal.supabase.init(); 
+            const session = await window.FlowJournal.auth.getSession();
+            if (session) window.location.href = 'flow-journal.html'; 
+        }
+        checkAuth();
+    </script>
+</body>
+</html>
