@@ -541,6 +541,143 @@
             background: white;
             transform: scale(1.1);
         }
+
+        /* 會員系統樣式 */
+        .member-section {
+            margin: 1rem 1.5rem;
+            padding: 1rem;
+            background: white;
+            border: 1px solid var(--clay);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .member-logged-out {
+            text-align: center;
+        }
+
+        .member-title {
+            font-size: 0.9rem;
+            color: var(--stone);
+            margin-bottom: 0.75rem;
+        }
+
+        .google-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid var(--clay);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .google-login-btn:hover {
+            background: #f8f9fa;
+            border-color: var(--accent-sage);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .member-logged-in {
+            display: none;
+        }
+
+        .member-logged-in.active {
+            display: block;
+        }
+
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-sage);
+        }
+
+        .member-details {
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--charcoal);
+        }
+
+        .member-email {
+            font-size: 0.75rem;
+            color: var(--stone);
+            margin-top: 0.15rem;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .member-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--clay);
+            border-radius: 6px;
+            background: var(--sand);
+            color: var(--charcoal);
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .member-btn:hover {
+            background: var(--clay);
+        }
+
+        .member-btn.logout {
+            background: white;
+            color: var(--stone);
+        }
+
+        .member-btn.logout:hover {
+            background: #ffe5e5;
+            color: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .sync-status {
+            font-size: 0.75rem;
+            color: var(--stone);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .sync-status.syncing {
+            color: var(--accent-sage);
+        }
+
+        .sync-status.error {
+            color: #d32f2f;
+        }
     </style>
 </head>
 <body>
@@ -573,6 +710,39 @@
                 </div>
                 <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--stone);">
                     💡 提示：定期匯出備份,避免資料遺失
+                </div>
+            </div>
+
+            <!-- 會員登入/管理區域 -->
+            <div class="member-section">
+                <!-- 未登入狀態 -->
+                <div id="memberLoggedOut" class="member-logged-out">
+                    <div class="member-title">🔐 登入會員，資料雲端同步</div>
+                    <button class="google-login-btn" onclick="handleGoogleLogin()">
+                        <svg class="google-icon" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        使用 Google 帳號登入
+                    </button>
+                </div>
+
+                <!-- 已登入狀態 -->
+                <div id="memberLoggedIn" class="member-logged-in">
+                    <div class="member-info">
+                        <img id="memberAvatar" class="member-avatar" src="" alt="頭像" onerror="this.style.display='none'">
+                        <div class="member-details">
+                            <div class="member-name" id="memberName">載入中...</div>
+                            <div class="member-email" id="memberEmail"></div>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="member-btn" onclick="handleSyncToCloud()">☁️ 同步到雲端</button>
+                        <button class="member-btn logout" onclick="handleLogout()">登出</button>
+                    </div>
+                    <div id="syncStatus" class="sync-status"></div>
                 </div>
             </div>
         </div>
@@ -811,6 +981,14 @@
         </div>
     </div>
 
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 應用模組 -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/sync.js"></script>
+
     <script>
         let records = [];
         let commonActions = ['看書', '冥想', '運動拉伸', '散步走路', '騎滑板車', '畫畫'];
@@ -832,7 +1010,7 @@
             }
         }
         
-        function saveData() {
+        async function saveData() {
             try {
                 const saveTime = new Date().toISOString();
                 localStorage.setItem('flowJournalRecords', JSON.stringify(records));
@@ -841,6 +1019,21 @@
                 console.log('Data saved successfully at', saveTime);
                 if (document.getElementById('recordCount')) {
                     updateDataStatus();
+                }
+
+                // 如果已登入，自動同步最新記錄到雲端
+                if (window.FlowJournal && window.FlowJournal.auth) {
+                    const isLoggedIn = await window.FlowJournal.auth.isLoggedIn();
+                    if (isLoggedIn && records.length > 0) {
+                        // 同步最新的記錄（假設剛新增的）
+                        const latestRecord = records[0];
+                        try {
+                            await window.FlowJournal.sync.uploadRecord(latestRecord);
+                            console.log('已自動同步最新記錄到雲端');
+                        } catch (syncError) {
+                            console.error('自動同步失敗:', syncError);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error saving data:', error);
@@ -925,12 +1118,169 @@
         initIndexedDB().then(() => {
             loadData();
             updateDataStatus();
+            initMemberSystem();
         }).catch(error => {
             console.error('IndexedDB init error:', error);
             loadData();
             updateDataStatus();
+            initMemberSystem();
         });
-        
+
+        // ========== 會員系統相關函數 ==========
+
+        async function initMemberSystem() {
+            try {
+                // 等待 Supabase 初始化
+                await new Promise(resolve => {
+                    if (window.FlowJournal && window.FlowJournal.supabase) {
+                        resolve();
+                    } else {
+                        setTimeout(resolve, 500);
+                    }
+                });
+
+                await checkLoginStatus();
+            } catch (error) {
+                console.error('會員系統初始化錯誤:', error);
+            }
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const isLoggedIn = await window.FlowJournal.auth.isLoggedIn();
+
+                if (isLoggedIn) {
+                    const userInfo = await window.FlowJournal.auth.getUserInfo();
+                    showLoggedInUI(userInfo);
+                    await loadFromCloud();
+                } else {
+                    showLoggedOutUI();
+                }
+            } catch (error) {
+                console.error('檢查登入狀態錯誤:', error);
+                showLoggedOutUI();
+            }
+        }
+
+        function showLoggedInUI(userInfo) {
+            document.getElementById('memberLoggedOut').style.display = 'none';
+            document.getElementById('memberLoggedIn').classList.add('active');
+
+            document.getElementById('memberName').textContent = userInfo.name;
+            document.getElementById('memberEmail').textContent = userInfo.email;
+
+            if (userInfo.avatar) {
+                const avatar = document.getElementById('memberAvatar');
+                avatar.src = userInfo.avatar;
+                avatar.style.display = 'block';
+            }
+        }
+
+        function showLoggedOutUI() {
+            document.getElementById('memberLoggedOut').style.display = 'block';
+            document.getElementById('memberLoggedIn').classList.remove('active');
+        }
+
+        async function handleGoogleLogin() {
+            try {
+                setSyncStatus('正在登入...', 'syncing');
+                await window.FlowJournal.auth.signInWithGoogle();
+            } catch (error) {
+                console.error('登入錯誤:', error);
+                setSyncStatus('登入失敗，請重試', 'error');
+                setTimeout(() => setSyncStatus(''), 3000);
+            }
+        }
+
+        async function handleLogout() {
+            if (!confirm('登出後，本地記錄仍會保留。確定要登出嗎？')) {
+                return;
+            }
+
+            try {
+                await window.FlowJournal.auth.signOut();
+                showLoggedOutUI();
+                showMessage('已登出');
+            } catch (error) {
+                console.error('登出錯誤:', error);
+                showMessage('登出失敗：' + error.message);
+            }
+        }
+
+        async function handleSyncToCloud() {
+            try {
+                setSyncStatus('正在同步...', 'syncing');
+
+                let successCount = 0;
+                let errorCount = 0;
+
+                for (const record of records) {
+                    try {
+                        await window.FlowJournal.sync.uploadRecord(record);
+                        successCount++;
+                    } catch (error) {
+                        console.error('同步記錄失敗:', record.id, error);
+                        errorCount++;
+                    }
+                }
+
+                if (errorCount === 0) {
+                    setSyncStatus(`✓ 已同步 ${successCount} 筆記錄`, '');
+                    setTimeout(() => setSyncStatus(''), 3000);
+                } else {
+                    setSyncStatus(`同步完成：${successCount} 成功，${errorCount} 失敗`, 'error');
+                }
+            } catch (error) {
+                console.error('同步錯誤:', error);
+                setSyncStatus('同步失敗，請重試', 'error');
+            }
+        }
+
+        async function loadFromCloud() {
+            try {
+                const supabase = window.FlowJournal.supabase.get();
+                const user = await window.FlowJournal.auth.getUser();
+
+                if (!user) return;
+
+                const { data: cloudRecords, error } = await supabase
+                    .from('records')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('time', { ascending: false });
+
+                if (error) throw error;
+
+                if (cloudRecords && cloudRecords.length > 0) {
+                    // 合併雲端記錄和本地記錄
+                    const existingIds = new Set(records.map(r => r.id));
+                    const newRecords = cloudRecords.filter(r => !existingIds.has(r.id));
+
+                    if (newRecords.length > 0) {
+                        records = [...records, ...newRecords];
+                        records.sort((a, b) => new Date(b.time) - new Date(a.time));
+                        saveData();
+
+                        console.log(`從雲端載入 ${newRecords.length} 筆新記錄`);
+                        setSyncStatus(`✓ 已載入 ${cloudRecords.length} 筆雲端記錄`, '');
+                        setTimeout(() => setSyncStatus(''), 3000);
+                    }
+                }
+            } catch (error) {
+                console.error('從雲端載入記錄錯誤:', error);
+            }
+        }
+
+        function setSyncStatus(message, className = '') {
+            const statusEl = document.getElementById('syncStatus');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = 'sync-status ' + className;
+            }
+        }
+
+        // ========== 會員系統函數結束 ==========
+
         function setCurrentTime() {
             const now = new Date();
             const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
