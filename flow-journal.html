@@ -82,7 +82,158 @@
             letter-spacing: 0.2em;
             position: relative;
         }
-        
+
+        /* 用戶信息區域樣式 */
+        .user-section {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+        }
+
+        .auth-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--cream);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        .auth-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--cream);
+            object-fit: cover;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            min-width: 100px;
+        }
+
+        .user-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--cream);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        .sync-status {
+            font-size: 0.65rem;
+            color: rgba(245, 243, 240, 0.8);
+        }
+
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .sync-indicator.synced {
+            color: var(--accent-sage);
+        }
+
+        .sync-indicator.syncing {
+            color: var(--accent-warm);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .sync-indicator.offline {
+            color: var(--stone);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: var(--cream);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow);
+            overflow: hidden;
+            min-width: 120px;
+            z-index: 100;
+        }
+
+        .user-menu-item {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: white;
+            color: var(--charcoal);
+            cursor: pointer;
+            text-align: left;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s ease;
+        }
+
+        .user-menu-item:hover {
+            background: var(--sand);
+        }
+
         .nav {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -546,6 +697,28 @@
 <body>
     <div class="app-container">
         <div class="header">
+            <div class="user-section" id="userSection">
+                <!-- 未登入狀態 -->
+                <button class="auth-btn" id="loginBtn" onclick="goToLogin()" style="display: none;">
+                    <span>🔑 登入</span>
+                </button>
+                <!-- 已登入狀態 -->
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <img class="user-avatar" id="userAvatar" src="" alt="用戶頭像" onerror="this.style.display='none'">
+                    <div class="user-details">
+                        <div class="user-name" id="userName">載入中...</div>
+                        <div class="sync-status" id="syncStatus">
+                            <span class="sync-indicator synced">☁️ 已同步</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="toggleUserMenu()" title="選單">⋮</button>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <button onclick="handleLogout()" class="user-menu-item">
+                            <span>🚪</span> 登出
+                        </button>
+                    </div>
+                </div>
+            </div>
             <h1>心流存摺</h1>
             <div class="header-subtitle">記錄成長 · 感知情緒</div>
         </div>
@@ -1583,6 +1756,138 @@
         }
         
         setCurrentTime();
+
+        // ========== 用戶認證相關功能 ==========
+
+        // 跳轉到登入頁面
+        function goToLogin() {
+            window.location.href = 'auth.html';
+        }
+
+        // 切換用戶菜單
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            if (menu.style.display === 'none') {
+                menu.style.display = 'block';
+            } else {
+                menu.style.display = 'none';
+            }
+        }
+
+        // 點擊頁面其他地方關閉菜單
+        document.addEventListener('click', function(e) {
+            const userMenu = document.getElementById('userMenu');
+            const logoutBtn = document.querySelector('.logout-btn');
+            if (userMenu && logoutBtn && !userMenu.contains(e.target) && !logoutBtn.contains(e.target)) {
+                userMenu.style.display = 'none';
+            }
+        });
+
+        // 處理登出
+        async function handleLogout() {
+            if (confirm('確定要登出嗎？本地數據將保留，但需要登入才能同步到雲端。')) {
+                try {
+                    await window.FlowJournal.auth.signOut();
+                } catch (error) {
+                    console.error('登出失敗:', error);
+                    showMessage('登出時發生錯誤');
+                }
+            }
+        }
+
+        // 更新用戶UI
+        async function updateUserUI() {
+            try {
+                const isLoggedIn = await window.FlowJournal.auth.isLoggedIn();
+                const loginBtn = document.getElementById('loginBtn');
+                const userInfo = document.getElementById('userInfo');
+
+                if (isLoggedIn) {
+                    // 已登入：隱藏登入按鈕，顯示用戶信息
+                    loginBtn.style.display = 'none';
+                    userInfo.style.display = 'flex';
+
+                    // 獲取用戶信息
+                    const user = await window.FlowJournal.auth.getUserInfo();
+                    if (user) {
+                        document.getElementById('userName').textContent = user.name;
+
+                        // 設置頭像
+                        if (user.avatar) {
+                            const avatarImg = document.getElementById('userAvatar');
+                            avatarImg.src = user.avatar;
+                            avatarImg.style.display = 'block';
+                        }
+
+                        // 更新同步狀態為已同步
+                        updateSyncStatus('synced');
+                    }
+                } else {
+                    // 未登入：顯示登入按鈕，隱藏用戶信息
+                    loginBtn.style.display = 'block';
+                    userInfo.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('更新用戶UI失敗:', error);
+                // 如果出錯，默認顯示登入按鈕
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        }
+
+        // 更新同步狀態指示器
+        function updateSyncStatus(status) {
+            const syncStatus = document.getElementById('syncStatus');
+            if (!syncStatus) return;
+
+            const statusConfig = {
+                'synced': { text: '☁️ 已同步', className: 'synced' },
+                'syncing': { text: '↻ 同步中', className: 'syncing' },
+                'offline': { text: '📱 本地儲存', className: 'offline' }
+            };
+
+            const config = statusConfig[status] || statusConfig['offline'];
+            syncStatus.innerHTML = `<span class="sync-indicator ${config.className}">${config.text}</span>`;
+        }
+
+        // 初始化 Supabase 和用戶認證
+        async function initAuth() {
+            try {
+                // 檢查 Supabase 配置是否已加載
+                if (window.FlowJournal && window.FlowJournal.supabase) {
+                    await window.FlowJournal.supabase.init();
+                    await updateUserUI();
+                } else {
+                    // 如果沒有 Supabase 配置，顯示登入按鈕
+                    document.getElementById('loginBtn').style.display = 'block';
+                    document.getElementById('userInfo').style.display = 'none';
+                    console.log('Supabase 配置未加載，跳過認證初始化');
+                }
+            } catch (error) {
+                console.error('認證初始化失敗:', error);
+                // 如果初始化失敗，顯示登入按鈕
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        }
+
+        // 頁面加載時初始化認證
+        document.addEventListener('DOMContentLoaded', function() {
+            initAuth();
+        });
+
+        // 立即調用一次（如果 DOMContentLoaded 已經觸發）
+        if (document.readyState === 'loading') {
+            // DOM 還在加載中，等待 DOMContentLoaded 事件
+        } else {
+            // DOM 已經準備好，立即執行
+            initAuth();
+        }
     </script>
+
+    <!-- 引入 Supabase 和認證模組 -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/sync.js"></script>
 </body>
 </html>
